@@ -1,0 +1,14 @@
+{
+    "name": "Cherry Blossom Hunters App Golang Development",
+    "dockerFile": "Dockerfile",  // Dockerfileのパス（もしあれば）
+    "context": "..",  // コンテナのビルドコンテキストのパス
+    "workspaceFolder": "/workspace",  // コンテナ内での作業ディレクトリ
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",  // ローカルリポジトリをコンテナ内にマウント
+    "settings": {
+      "go.gopath": "/go"
+    },
+    "extensions": [
+      "ms-vscode.go"  // Go用のVS Code拡張
+    ],
+    "postCreateCommand": "sh ./.devcontainer/postCreateCommand.sh"
+  }
