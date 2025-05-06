@@ -1,0 +1,14 @@
+{
+  "name": "Cherry Blossom Hunters App Golang Development",
+  "dockerFile": "Dockerfile", // Path to the Dockerfile used for building the dev container
+  "context": "..", // Build context path for the Dockerfile
+  "workspaceFolder": "/workspace", // Default working directory inside the container
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind", // Mount the local workspace into the container
+  "settings": {
+    "go.gopath": "/go" // Set the Go workspace path inside the container
+  },
+  "extensions": [
+    "ms-vscode.go" // VS Code extension for Go development
+  ],
+  "postCreateCommand": "sh ./.devcontainer/postCreateCommand.sh" // Script to run after the container is created
+}
