@@ -1,3 +1,3 @@
 #!/bin/bash
-cd /workspace/cherry-blossom-hunters-app/src && go mod tidy
-go run main.go
+cd /workspace/cherry-blossom-hunters-app/ && go mod tidy
+go run cmd/server/main.go
