@@ -11,6 +11,7 @@ import (
 const (
 	Warn  = "WARN"
 	Error = "ERROR"
+	Debug = "DEBUG"
 )
 
 func SetUp() {
@@ -33,6 +34,8 @@ func Logging(message string, level ...string) {
 		prefix = "warn:"
 	case Error:
 		prefix = "error:"
+	case Debug:
+		prefix = "debug:"
 	default:
 		prefix = "info:"
 	}

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"os/exec"
 	"time"
+	"fmt"
+	"cherry-blossom-hunters-app/utils/jsonUtil"
 )
 
 type ScheduleEvent struct {
@@ -32,6 +34,8 @@ func FetchEventsWithContext(ctx context.Context) ([]ScheduleEvent, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(string(output))
+	jsonUtil.PersistJSONToHash256(output, "./sha256_output.txt")
 
 	var res []ScheduleEvent
 	if err := json.Unmarshal(output, &res); err != nil {
