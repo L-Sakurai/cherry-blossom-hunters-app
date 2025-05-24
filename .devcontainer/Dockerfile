@@ -1,4 +1,4 @@
-FROM golang:1.20
+FROM golang:1.22
 
 # Install necessary system packages using apt-get
 RUN apt-get update && \
