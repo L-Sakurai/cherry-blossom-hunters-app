@@ -17,7 +17,7 @@ func HealthcheckHandler(w http.ResponseWriter, r *http.Request) {
 	// リクエストのタイムアウトを設定（5秒）
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
-
+	
 	res, err := service.FetchEventsWithContext(ctx)
 	if err != nil {
 		logger.Logging("eventDetect error: "+err.Error(), logger.Error)

@@ -3,6 +3,7 @@ package logger
 import (
 	"log"
 	"os"
+	"fmt"
 
 	"github.com/comail/colog"
 )
@@ -11,6 +12,7 @@ import (
 const (
 	Warn  = "WARN"
 	Error = "ERROR"
+	Debug = "DEBUG"
 )
 
 func SetUp() {
@@ -20,19 +22,30 @@ func SetUp() {
 	colog.SetFlags(log.Ldate | log.Lshortfile)
 }
 
-func Logging(message string, level ...string) {
-	lv := "info"
+func Logging(format string, args ...interface{}) {
+	level := "info"
+	message := format
 
-	if len(level) > 0 {
-		lv = level[0]
+	// ログレベルを指定する場合は、最初の引数として渡す (例: Logging("warn", "User ID: %v", userID))
+	if len(args) > 0 {
+		if s, ok := args[0].(string); ok && (s == "warn" || s == "error" || s == "debug" || s == "info") {
+			level = s
+			if len(args) > 1 {
+				message = fmt.Sprintf(format, args[1:]...)
+			}
+		} else {
+			message = fmt.Sprintf(format, args...)
+		}
 	}
 
 	var prefix string
-	switch lv {
-	case Warn:
+	switch level {
+	case "warn":
 		prefix = "warn:"
-	case Error:
+	case "error":
 		prefix = "error:"
+	case "debug":
+		prefix = "debug:"
 	default:
 		prefix = "info:"
 	}

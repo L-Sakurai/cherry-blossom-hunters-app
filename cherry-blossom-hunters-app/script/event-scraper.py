@@ -17,44 +17,46 @@ def get_user_agent_from_selenium():
         driver.get("https://www.google.com")
         user_agent = driver.execute_script("return navigator.userAgent;")
         driver.quit()
-        return user_agent.replace("Headless","")
+        return user_agent.replace("Headless", "")
 
 def extract_quests_from_table(soup):
-    """<table class="table2">からクエスト情報を抽出"""
+    """<table class='table2'>からクエスト情報を抽出（重複排除あり）"""
     quests = []
+    seen = set()
+
     tables = soup.find_all("table", class_="table2")
 
     for table in tables:
         rows = table.find_all("tr", class_="t1")
         for row in rows:
             try:
-                # 各要素を個別に取り出し、安全に抽出
                 image_tag = row.find("td", class_="image").find("img")
-                image_url = image_tag["src"] if image_tag else None
+                image_url = image_tag["src"] if image_tag else ""
 
                 level_tag = row.find("td", class_="level")
-                level = level_tag.get_text(strip=True) if level_tag else None
+                level = level_tag.get_text(strip=True) if level_tag else ""
 
-                # タイトル（最初の <span> で label_new を除いた本体）
                 title_tag = row.select_one("td.quest .title > span:last-child")
-                title = title_tag.get_text(strip=True) if title_tag else None
+                title = title_tag.get_text(strip=True) if title_tag else ""
 
-                # 開催期間
                 period_tag = row.find("p", class_="terms")
-                period = period_tag.get_text(strip=True).replace("開催期間", "") if period_tag else None
+                period = period_tag.get_text(strip=True).replace("開催期間", "") if period_tag else ""
 
-                # 説明文
                 desc_tag = row.find("p", class_="txt")
-                description = desc_tag.get_text(strip=True) if desc_tag else None
+                description = desc_tag.get_text(strip=True) if desc_tag else ""
 
-                if title and level:  # タイトルと難易度がある行だけ追加
-                    quests.append({
-                        "title": title,
-                        "level": level,
-                        "period": period,
-                        "description": description,
-                        "image_url": image_url
-                    })
+                if title and level:
+                    # 一意判定キー（すべての要素を含める）
+                    unique_key = f"{title}-{level}-{period}-{description}-{image_url}"
+                    if unique_key not in seen:
+                        seen.add(unique_key)
+                        quests.append({
+                            "title": title,
+                            "level": level,
+                            "period": period,
+                            "description": description,
+                            "image_url": image_url
+                        })
             except Exception as e:
                 print(f"スキップされた行でエラー: {e}")
                 continue
@@ -73,9 +75,8 @@ def main():
         with request.urlopen(req) as response:
             html = response.read()
             soup = BeautifulSoup(html, "html.parser")
-            #print(soup.prettify())
             quests = extract_quests_from_table(soup)
-            print(json.dumps(quests, indent=2))
+            print(json.dumps(quests, indent=2, ensure_ascii=False))  # 日本語表示のためensure_ascii=False
 
     except Exception as e:
         print(f"caused error: {e}")

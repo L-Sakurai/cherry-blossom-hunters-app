@@ -8,15 +8,19 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	// "fmt"
 
 	"cherry-blossom-hunters-app/routes"
 	"cherry-blossom-hunters-app/logger"
 	"cherry-blossom-hunters-app/notify"
+	"cherry-blossom-hunters-app/appConfig"
+	// "cherry-blossom-hunters-app/service"
+
 )
 
 func main() {
+	config := appConfig.GetConfig()
 	logger.SetUp()
-
 	// グレイスフルシャットダウン用のチャネル
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
@@ -27,7 +31,7 @@ func main() {
 	// HTTPサーバーの設定
 	server := &http.Server{
 		Addr:    ":8080",
-		Handler: routes.SetupRoutes(httpShutdown),
+		Handler: routes.SetupRoutes(httpShutdown, config),
 	}
 
 	// サーバー起動用のゴルーチン
