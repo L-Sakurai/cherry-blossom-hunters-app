@@ -1,13 +1,12 @@
 package logger
 
 import (
+	"fmt"
 	"log"
 	"os"
-	"fmt"
 
 	"github.com/comail/colog"
 )
-
 
 const (
 	Warn  = "WARN"
