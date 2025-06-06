@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 	"fmt"
-	// "cherry-blossom-hunters-app/logger"
+	"cherry-blossom-hunters-app/logger"
 	"cherry-blossom-hunters-app/service"
 	"cherry-blossom-hunters-app/appConfig"
 
@@ -27,7 +27,7 @@ func (h *MemberSeviceHandler) CheckCompliance(w http.ResponseWriter, r *http.Req
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 	
-	err := h.memberService.CheckMemberComplianceWithContext(ctx)
+	res, err := h.memberService.CheckMemberComplianceWithContext(ctx)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{
@@ -35,5 +35,16 @@ func (h *MemberSeviceHandler) CheckCompliance(w http.ResponseWriter, r *http.Req
 			"details": err.Error(),
 		})
 		return
+	}
+
+	response := map[string]interface{}{
+		"message": res.Message,
+		"status": res.Diff,
+		"timestamp": time.Now().UTC().Format(time.RFC3339),
+	}
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		logger.Logging("Failed to encode JSON: "+err.Error(), logger.Error)
+		http.Error(w, `{"error": "Encoding Failed"}`, http.StatusInternalServerError)
 	}
 }

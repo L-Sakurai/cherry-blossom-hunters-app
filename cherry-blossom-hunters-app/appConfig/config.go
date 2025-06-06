@@ -33,6 +33,7 @@ type Config struct {
         MasterUserID         string
         EventChannelID       string
         GoodReactionUrlEncodeString string
+        SubjectToUrlExclusionFromJedgment string
     }
     
     Scraping struct {
@@ -64,6 +65,7 @@ func GetConfig() *Config {
             MasterUserID         string
             EventChannelID       string
             GoodReactionUrlEncodeString string
+            SubjectToUrlExclusionFromJedgment string
         }{
             Token:           getEnvRequired("DISCORD_BOT_CLIENT_TOKEN"),
             MemberChannelID: getEnvRequired("MEMBER_CHANNEL_ID"),
@@ -71,6 +73,8 @@ func GetConfig() *Config {
             MasterUserID:    getEnvRequired("MASTER_USER_ID"),
             EventChannelID:  getEnvRequired("EVENT_CHANNEL_ID"),
             GoodReactionUrlEncodeString: getEnvRequired("GOOD_REACTION_URL_ENCODE_STRING"),
+            SubjectToUrlExclusionFromJedgment: getEnvRequired("SUBJECT_TO_EXCLUSION_FROM_JUDGMENT"),
+
         },
         
         Scraping: struct {
