@@ -3,135 +3,186 @@ package appConfig
 import (
 	"os"
 	"strconv"
-    "strings"
+	"strings"
+	"time"
 
 	"github.com/joho/godotenv"
 	"cherry-blossom-hunters-app/logger"
 )
 
 func init() {
-    initialize()
+	initialize()
 }
 
 func initialize() {
-    err := godotenv.Load()
-    if err != nil {
-        logger.Logging("[appConfig] No .env file found or failed to load:", logger.Error)
-    }
+	err := godotenv.Load()
+	if err != nil {
+		logger.Logging("[appConfig] No .env file found or failed to load:", logger.Error)
+	}
 }
 
 type Config struct {
-    Server struct {
-        Port string
-        Host string
-    }
-    
-    Discord struct {
-        Token                string
-        MemberChannelID      string
-        RuleChannelID        string
-        MasterUserID         string
-        EventChannelID       string
-        GoodReactionUrlEncodeString string
-        SubjectToUrlExclusionFromJedgment string
-    }
-    
-    Scraping struct {
-        EventURL string
-        Timeout  int // 秒
-    }
-    
-    Storage struct {
-        HashFilePath   string
-        MemberDataPath string
-    }
+	Server struct {
+		Port string
+		Host string
+	}
+
+	Discord struct {
+		Token                             string
+		MemberChannelID                   string
+		RuleChannelID                     string
+		MasterUserID                      string
+		EventChannelID                    string
+		GoodReactionUrlEncodeString       string
+		SubjectToUrlExclusionFromJedgment string
+	}
+
+	Event struct {
+		ScriptPath     string
+		PythonCommand  string
+		OutputFilePath string
+		DefaultTimeout time.Duration
+	}
+
+	Scraping struct {
+		EventURL string
+		Timeout  int
+	}
+
+	Storage struct {
+		HashFilePath   string
+		MemberDataPath string
+	}
+
+	Notify struct {
+		Webhooks map[string]string
+	}
 }
 
-// 環境変数から設定を読み込み
+// GetConfig returns the full app configuration
 func GetConfig() *Config {
-    return &Config{
-        Server: struct {
-            Port string
-            Host string
-        }{
-            Port: getEnvWithDefault("SERVER_PORT", "8080"),
-            Host: getEnvWithDefault("SERVER_HOST", "localhost"),
-        },
-        
-        Discord: struct {
-            Token                string
-            MemberChannelID      string
-            RuleChannelID        string
-            MasterUserID         string
-            EventChannelID       string
-            GoodReactionUrlEncodeString string
-            SubjectToUrlExclusionFromJedgment string
-        }{
-            Token:           getEnvRequired("DISCORD_BOT_CLIENT_TOKEN"),
-            MemberChannelID: getEnvRequired("MEMBER_CHANNEL_ID"),
-            RuleChannelID:   getEnvRequired("RULE_CHANNEL_ID"),
-            MasterUserID:    getEnvRequired("MASTER_USER_ID"),
-            EventChannelID:  getEnvRequired("EVENT_CHANNEL_ID"),
-            GoodReactionUrlEncodeString: getEnvRequired("GOOD_REACTION_URL_ENCODE_STRING"),
-            SubjectToUrlExclusionFromJedgment: getEnvRequired("SUBJECT_TO_EXCLUSION_FROM_JUDGMENT"),
+	return &Config{
+		Server: struct {
+			Port string
+			Host string
+		}{
+			Port: getEnvWithDefault("SERVER_PORT", "8080"),
+			Host: getEnvWithDefault("SERVER_HOST", "localhost"),
+		},
 
-        },
-        
-        Scraping: struct {
-            EventURL string
-            Timeout  int
-        }{
-            EventURL: getEnvWithDefault("SCRAPING_EVENT_URL", "https://www.capcom.co.jp/monsterhunter/wilds/topics/"),
-            Timeout:  getEnvInt("SCRAPING_TIMEOUT", 30), // デフォルト30秒
-        },
-        
-        Storage: struct {
-            HashFilePath   string
-            MemberDataPath string
-        }{
-            HashFilePath:   getEnvWithDefault("HASH_FILE_PATH", "sha256_output.txt"),
-            MemberDataPath: getEnvWithDefault("MEMBER_DATA_PATH", "member_compliance_data.json"),
-        },
-    }
+		Discord: struct {
+			Token                             string
+			MemberChannelID                   string
+			RuleChannelID                     string
+			MasterUserID                      string
+			EventChannelID                    string
+			GoodReactionUrlEncodeString       string
+			SubjectToUrlExclusionFromJedgment string
+		}{
+			Token:                             getEnvRequired("DISCORD_BOT_CLIENT_TOKEN"),
+			MemberChannelID:                   getEnvRequired("MEMBER_CHANNEL_ID"),
+			RuleChannelID:                     getEnvRequired("RULE_CHANNEL_ID"),
+			MasterUserID:                      getEnvRequired("MASTER_USER_ID"),
+			EventChannelID:                    getEnvRequired("EVENT_CHANNEL_ID"),
+			GoodReactionUrlEncodeString:       getEnvRequired("GOOD_REACTION_URL_ENCODE_STRING"),
+			SubjectToUrlExclusionFromJedgment: getEnvRequired("SUBJECT_TO_EXCLUSION_FROM_JUDGMENT"),
+		},
+
+		Event: struct {
+			ScriptPath     string
+			PythonCommand  string
+			OutputFilePath string
+			DefaultTimeout time.Duration
+		}{
+			ScriptPath:     getEnvWithDefault("EVENT_SCRIPT_PATH", "./script/event-scraper.py"),
+			PythonCommand:  getEnvWithDefault("EVENT_PYTHON_COMMAND", "python3"),
+			OutputFilePath: getEnvWithDefault("EVENT_OUTPUT_FILE_PATH", "./sha256_output.txt"),
+			DefaultTimeout: getEnvDuration("EVENT_DEFAULT_TIMEOUT", 10*time.Second),
+		},
+
+		Scraping: struct {
+			EventURL string
+			Timeout  int
+		}{
+			EventURL: getEnvWithDefault("SCRAPING_EVENT_URL", "https://www.capcom.co.jp/monsterhunter/wilds/topics/"),
+			Timeout:  getEnvInt("SCRAPING_TIMEOUT", 30),
+		},
+
+		Storage: struct {
+			HashFilePath   string
+			MemberDataPath string
+		}{
+			HashFilePath:   getEnvWithDefault("HASH_FILE_PATH", "sha256_output.txt"),
+			MemberDataPath: getEnvWithDefault("MEMBER_DATA_PATH", "member_compliance_data.json"),
+		},
+
+		Notify: struct {
+			Webhooks map[string]string
+		}{
+			Webhooks: getWebhookMap([]string{
+				"DISCORD_WEBHOOK_MEMBER",
+				"DISCORD_WEBHOOK_EVENT",
+				"DISCORD_WEBHOOK_LOG",
+			}),
+		},
+	}
 }
 
-// 必須の環境変数を取得（存在しない場合はpanicする）
 func getEnvRequired(key string) string {
-    value := os.Getenv(key)
-    if value == "" {
-        panic("必須の環境変数が設定されていません: " + key)
-    }
-    return value
+	val := os.Getenv(key)
+	if val == "" {
+		panic("Required environment variable is not set: " + key)
+	}
+	return val
 }
 
-// デフォルト値付きで環境変数を取得
 func getEnvWithDefault(key, defaultValue string) string {
-    if value := os.Getenv(key); value != "" {
-        return value
-    }
-    return defaultValue
+	if val := os.Getenv(key); val != "" {
+		return val
+	}
+	return defaultValue
 }
 
-// 環境変数を整数として取得
 func getEnvInt(key string, defaultValue int) int {
-    if value := os.Getenv(key); value != "" {
-        if intValue, err := strconv.Atoi(value); err == nil {
-            return intValue
-        }
-    }
-    return defaultValue
+	if val := os.Getenv(key); val != "" {
+		if intVal, err := strconv.Atoi(val); err == nil {
+			return intVal
+		}
+	}
+	return defaultValue
 }
 
-// 環境変数をスライスとして取得（カンマ区切り）
+func getEnvDuration(key string, defaultValue time.Duration) time.Duration {
+	if val := os.Getenv(key); val != "" {
+		if sec, err := strconv.Atoi(val); err == nil {
+			return time.Duration(sec) * time.Second
+		}
+		if d, err := time.ParseDuration(val); err == nil {
+			return d
+		}
+	}
+	return defaultValue
+}
+
 func getEnvSlice(key string, defaultValue []string) []string {
-    if value := os.Getenv(key); value != "" {
-        // カンマ区切りで分割
-        slice := strings.Split(value, ",")
-        // 前後の空白を削除
-        for i, v := range slice {
-            slice[i] = strings.TrimSpace(v)
-        }
-        return slice
-    }
-    return defaultValue
+	if val := os.Getenv(key); val != "" {
+		slice := strings.Split(val, ",")
+		for i := range slice {
+			slice[i] = strings.TrimSpace(slice[i])
+		}
+		return slice
+	}
+	return defaultValue
+}
+
+// getWebhookMap loads multiple DISCORD_WEBHOOK_* env vars into a map
+func getWebhookMap(keys []string) map[string]string {
+	webhooks := make(map[string]string)
+	for _, key := range keys {
+		if val := os.Getenv(key); val != "" {
+			name := strings.ToLower(strings.TrimPrefix(key, "DISCORD_WEBHOOK_")) // e.g. MEMBER → member
+			webhooks[name] = val
+		}
+	}
+	return webhooks
 }

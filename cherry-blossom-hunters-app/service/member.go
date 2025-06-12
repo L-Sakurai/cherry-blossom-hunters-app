@@ -7,7 +7,6 @@ import (
     "context"
     "github.com/bwmarrin/discordgo"
 	"cherry-blossom-hunters-app/appConfig"
-    "cherry-blossom-hunters-app/logger"
 )
 
 type ComplianceCheckResultResponse struct {
@@ -125,7 +124,6 @@ func (s *MemberService) getRuleReaders(dg *discordgo.Session, channelId string) 
     for username := range ruleReadersMap {
         ruleReaders = append(ruleReaders, username)
     }
-    logger.Logging("debug", "%v", ruleReaders)    
     return ruleReaders, nil
 }
 
