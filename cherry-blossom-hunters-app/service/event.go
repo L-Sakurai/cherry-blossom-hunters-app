@@ -177,7 +177,6 @@ func FetchEvents() ([]ScheduleEvent, error) {
 // FetchEventsWithContext - Legacy function (global)
 func FetchEventsWithContext(ctx context.Context) ([]ScheduleEvent, error) {
 	cmd := exec.CommandContext(ctx, "python3", "./script/event-scraper.py")
-	
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, err

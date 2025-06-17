@@ -29,7 +29,7 @@ func (h *EventServiceHandler) CheckEvents(w http.ResponseWriter, r *http.Request
 	logger.Logging("info", "/events accessed")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
 	defer cancel()
 
 	res, err := h.eventService.FetchEventsWithContext(ctx)
