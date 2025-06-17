@@ -131,12 +131,31 @@
 ## 7. 出力例（JSON）
 
 ```json
-[
-  {
-    "title": "サクラフェスティバル",
-    "level": "中級",
-    "period": "2025-03-01 ～ 2025-03-31",
-    "description": "春の祭典！",
-    "image_url": "https://example.com/event.jpg"
-  }
-]
+{
+  "events": [
+    {
+      "title": "三人寄ればケマトリス！",
+      "level": "★4",
+      "period": "06-04 09:00 〜 06-18 08:59",
+      "description": "特別な素材を集めて、アイルーの顔を模した頭装備「【アイルーフェイクα】」を入手しよう！",
+      "image_url": "https://info.monsterhunter.com/wilds/event-quest/thumbnail/mst-quest/May2025/CRiI4dVqN25U12TZIf86.jpg"
+    },
+    {
+      "title": "バヨネットが踊る雨",
+      "level": "★5",
+      "period": "06-11 09:00 〜 06-18 08:59",
+      "description": "「光る珠・剣」を集めやすいイベントクエストが登場！装飾品で武器スキルをカスタマイズしよう！",
+      "image_url": "https://info.monsterhunter.com/wilds/event-quest/thumbnail/mst-quest/February2025/G1CM1k94LpGV5C7v4vwp.jpg"
+    },
+    {
+      "title": "砂傷だらけの荒者魂",
+      "level": "★5",
+      "period": "06-11 09:00 〜 06-18 08:59",
+      "description": "「光る珠・鎧」を集めやすいイベントクエストが登場！装飾品で防具スキルをカスタマイズしよう！",
+      "image_url": "https://info.monsterhunter.com/wilds/event-quest/thumbnail/mst-quest/February2025/tzOMg5CCDyLMTyG0EFUX.jpg"
+    }
+  ],
+  "status": "ok",
+  "timestamp": "2025-06-17T00:58:13Z"
+}
+```
