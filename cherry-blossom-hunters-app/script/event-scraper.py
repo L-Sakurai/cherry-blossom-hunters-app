@@ -20,7 +20,7 @@ def get_user_agent_from_selenium():
         return user_agent.replace("Headless", "")
 
 def extract_quests_from_table(soup):
-    """<table class='table2'>からクエスト情報を抽出（重複排除あり）"""
+    """Extract quest information from <table class='table2'> with deduplication"""
     quests = []
     seen = set()
 
@@ -46,7 +46,7 @@ def extract_quests_from_table(soup):
                 description = desc_tag.get_text(strip=True) if desc_tag else ""
 
                 if title and level:
-                    # 一意判定キー（すべての要素を含める）
+                    # Unique identification key (includes all elements)
                     unique_key = f"{title}-{level}-{period}-{description}-{image_url}"
                     if unique_key not in seen:
                         seen.add(unique_key)
@@ -58,7 +58,7 @@ def extract_quests_from_table(soup):
                             "image_url": image_url
                         })
             except Exception as e:
-                print(f"スキップされた行でエラー: {e}")
+                print(f"Error in skipped row: {e}")
                 continue
 
     return quests
@@ -76,7 +76,7 @@ def main():
             html = response.read()
             soup = BeautifulSoup(html, "html.parser")
             quests = extract_quests_from_table(soup)
-            print(json.dumps(quests, indent=2, ensure_ascii=False))  # 日本語表示のためensure_ascii=False
+            print(json.dumps(quests, indent=2, ensure_ascii=False))  # ensure_ascii=False for Japanese text display
 
     except Exception as e:
         print(f"caused error: {e}")

@@ -10,5 +10,5 @@
   "extensions": [
     "ms-vscode.go" // VS Code extension for Go development
   ],
-  "postCreateCommand": "sh ./.devcontainer/postCreateCommand.sh" // Script to run after the container is created
+  "postCreateCommand": "sh ./.devcontainer/postCreateCommand.sh" // Script to run after the container is crea
 }
