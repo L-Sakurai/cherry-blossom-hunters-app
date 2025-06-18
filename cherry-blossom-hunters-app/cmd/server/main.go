@@ -15,26 +15,25 @@ import (
 	"cherry-blossom-hunters-app/notify"
 	"cherry-blossom-hunters-app/appConfig"
 	// "cherry-blossom-hunters-app/service"
-
 )
 
 func main() {
 	config := appConfig.GetConfig()
 	logger.SetUp()
-	// グレイスフルシャットダウン用のチャネル
+	// Channel for graceful shutdown
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
 
-	// HTTPシャットダウン用のチャネル
+	// Channel for HTTP shutdown
 	httpShutdown := make(chan bool, 1)
 
-	// HTTPサーバーの設定
+	// HTTP server configuration
 	server := &http.Server{
 		Addr:    ":8080",
 		Handler: routes.SetupRoutes(httpShutdown, config),
 	}
 
-	// サーバー起動用のゴルーチン
+	// Goroutine for server startup
 	go func() {
 		logger.Logging("Server listening on :8080")
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -43,7 +42,7 @@ func main() {
 		}
 	}()
 
-	// シャットダウン待機
+	// Wait for shutdown signal
 	select {
 	case sig := <-shutdown:
 		logger.Logging("Received signal: " + sig.String() + ". Initiating graceful shutdown...")
@@ -51,20 +50,18 @@ func main() {
 		logger.Logging("HTTP shutdown request received. Initiating graceful shutdown...")
 	}
 
-	// グレイスフルシャットダウンの実行
+	// Execute graceful shutdown
 	gracefulShutdown(server)
-
 }
 
-
 func gracefulShutdown(server *http.Server) {
-	// シャットダウンのタイムアウトを設定（30秒）
+	// Set shutdown timeout (30 seconds)
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	var wg sync.WaitGroup
 
-	// 外部通知を並行して実行
+	// Execute external notifications concurrently
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -72,7 +69,7 @@ func gracefulShutdown(server *http.Server) {
 		notify.NotifyUserShutdown()
 	}()
 
-	// HTTPサーバーのシャットダウン
+	// HTTP server shutdown
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -84,7 +81,7 @@ func gracefulShutdown(server *http.Server) {
 		}
 	}()
 
-	// すべてのシャットダウン処理の完了を待機
+	// Wait for all shutdown processes to complete
 	done := make(chan struct{})
 	go func() {
 		wg.Wait()
@@ -98,7 +95,7 @@ func gracefulShutdown(server *http.Server) {
 		logger.Logging("Shutdown timeout exceeded, forcing exit", logger.Warn)
 	}
 
-	// 最終クリーンアップ
+	// Final cleanup
 	time.Sleep(100 * time.Millisecond)
 	logger.Logging("Application exiting...")
 }

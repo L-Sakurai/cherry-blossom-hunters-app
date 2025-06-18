@@ -51,7 +51,6 @@ func (h *MemberSeviceHandler) CheckCompliance(w http.ResponseWriter, r *http.Req
 		},
 	}
 
-	// 修正: notifier.Sendメソッドを正しく呼び出し
 	if err := h.notifier.Send(payload); err != nil {
 		logger.Logging("error", "Webhook送信失敗: %v", err)
 	} else {

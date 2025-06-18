@@ -10,7 +10,6 @@ import (
 
 func ShutdownHandler(shutdown chan bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// POSTリクエストのみ受け付ける（セキュリティ向上）
 		if r.Method != http.MethodPost {
 			http.Error(w, `{"error": "Method not allowed"}`, http.StatusMethodNotAllowed)
 			return
@@ -25,20 +24,16 @@ func ShutdownHandler(shutdown chan bool) http.HandlerFunc {
 			"timestamp": time.Now().UTC().Format(time.RFC3339),
 		}
 
-		// レスポンスを送信
 		if err := json.NewEncoder(w).Encode(response); err != nil {
 			logger.Logging("Failed to encode shutdown response: "+err.Error(), logger.Error)
 			return
 		}
 
-		// レスポンスのフラッシュを確実に行う
 		if f, ok := w.(http.Flusher); ok {
 			f.Flush()
 		}
 
-		// 非同期でシャットダウンシグナルを送信
 		go func() {
-			// レスポンスが確実に送信されるまで少し待機
 			time.Sleep(100 * time.Millisecond)
 			
 			select {

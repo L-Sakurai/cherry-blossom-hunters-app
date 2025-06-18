@@ -64,7 +64,6 @@ func (h *EventServiceHandler) CheckEvents(w http.ResponseWriter, r *http.Request
 		"timestamp": time.Now().UTC().Format(time.RFC3339),
 	}
 
-	// Discord通知の送信
 	h.sendEventNotification(res)
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
@@ -94,7 +93,6 @@ func (h *EventServiceHandler) sendEventNotification(events []service.ScheduleEve
 	}
 }
 
-// 後方互換性のため、既存のEventHandler関数も残す
 // Global EventService instance for EventHandler
 var eventService *service.EventService
 

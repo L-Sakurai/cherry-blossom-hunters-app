@@ -7,38 +7,38 @@ import (
 	"cherry-blossom-hunters-app/logger"
 )
 
-// NotifyUserShutdown は既存の関数（変更なし）
+// NotifyUserShutdown is the existing function (no changes)
 func NotifyUserShutdown() {
-	// 既存の通知ロジックをここに実装
+	// Implement existing notification logic here
 	logger.Logging("Sending shutdown notifications to users...")
 	
-	// 例: 実際の通知処理（メール、Slack、Webhookなど）
-	// この部分は元のコードに依存します
-	time.Sleep(200 * time.Millisecond) // 通知処理のシミュレーション
+	// Example: actual notification processing (email, Slack, webhook, etc.)
+	// This part depends on the original code
+	time.Sleep(200 * time.Millisecond) // Simulation of notification processing
 	
 	logger.Logging("User shutdown notifications sent successfully")
 }
 
-// NotifyUserShutdownWithContext はコンテキスト対応版
+// NotifyUserShutdownWithContext is the context-aware version
 func NotifyUserShutdownWithContext(ctx context.Context) error {
 	logger.Logging("Sending shutdown notifications to users...")
 	
-	// コンテキストのキャンセレーションをチェックしながら通知処理
+	// Check for context cancellation while processing notifications
 	select {
 	case <-ctx.Done():
 		logger.Logging("Notification canceled due to context timeout", logger.Warn)
 		return ctx.Err()
 	default:
-		// 実際の通知処理
-		// 例: 外部APIコール、データベース更新など
-		time.Sleep(200 * time.Millisecond) // 通知処理のシミュレーション
+		// Actual notification processing
+		// Example: external API calls, database updates, etc.
+		time.Sleep(200 * time.Millisecond) // Simulation of notification processing
 	}
 	
 	logger.Logging("User shutdown notifications sent successfully")
 	return nil
 }
 
-// NotifyUserShutdownWithTimeout はタイムアウト付きの通知
+// NotifyUserShutdownWithTimeout is notification with timeout
 func NotifyUserShutdownWithTimeout(timeout time.Duration) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
