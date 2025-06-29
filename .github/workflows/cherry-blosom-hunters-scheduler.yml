@@ -4,6 +4,7 @@ name: MH Wilds Scheduler
 on:
   push:
     branches: [ feature/base-of-app ]
+  workflow_dispatch:
   schedule:
     # Function①: Event Check
     # Wed/Thu: Every 4 hours (JST 00,04,08,12,16,20)
