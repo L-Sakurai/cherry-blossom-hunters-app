@@ -1,23 +1,9 @@
 import json
-import tempfile
 from urllib import request
 from bs4 import BeautifulSoup
 
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-
-def get_user_agent_from_selenium():
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-
-    with tempfile.TemporaryDirectory() as user_data_dir:
-        driver = webdriver.Chrome(options=options)
-        driver.get("https://www.google.com")
-        user_agent = driver.execute_script("return navigator.userAgent;")
-        driver.quit()
-        return user_agent.replace("Headless", "")
+def get_user_agent():
+    return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 
 def extract_quests_from_table(soup):
     """Extract quest information from <table class='table2'> with deduplication"""
@@ -66,7 +52,7 @@ def extract_quests_from_table(soup):
 def main():
     url = "https://info.monsterhunter.com/wilds/event-quest/ja/schedule"
     headers = {
-        "User-Agent": get_user_agent_from_selenium()
+        "User-Agent": get_user_agent()
     }
 
     req = request.Request(url, headers=headers)

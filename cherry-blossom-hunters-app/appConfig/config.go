@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
+	"fmt"
 	"github.com/joho/godotenv"
 	"cherry-blossom-hunters-app/logger"
 )
@@ -15,10 +15,13 @@ func init() {
 }
 
 func initialize() {
-	err := godotenv.Load()
-	if err != nil {
-		logger.Logging("[appConfig] No .env file found or failed to load:", logger.Error)
-	}
+	fmt.Println(os.Environ())
+    if os.Getenv("APP_ENV") != "production" {
+        err := godotenv.Load()
+        if err != nil {
+            logger.Logging("[appConfig] No .env file found or failed to load:", logger.Error)
+        }
+    }
 }
 
 type Config struct {
@@ -131,11 +134,16 @@ func GetConfig() *Config {
 func getEnvRequired(key string) string {
 	val := os.Getenv(key)
 	if val == "" {
+		fmt.Println("Available environment variables:")
+		for _, env := range os.Environ() {
+			if strings.Contains(env, "DISCORD") || strings.Contains(env, "TOKEN") {
+				fmt.Println(env)
+			}
+		}
 		panic("Required environment variable is not set: " + key)
 	}
 	return val
 }
-
 func getEnvWithDefault(key, defaultValue string) string {
 	if val := os.Getenv(key); val != "" {
 		return val
