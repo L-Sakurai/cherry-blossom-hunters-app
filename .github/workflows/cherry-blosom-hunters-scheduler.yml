@@ -3,7 +3,7 @@ name: MH Wilds Scheduler
 
 on:
   push:
-    branches: [ feature/base-of-app ]
+    branches: [ feature/base-of-app, main ]
   workflow_dispatch:
   schedule:
     # Function①: Event Check
@@ -32,3 +32,4 @@ jobs:
     steps:
       - run: |
           curl -X GET "${{ secrets.API_BASE_URL }}/api/member/compliance/check"
+
