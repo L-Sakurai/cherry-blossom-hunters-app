@@ -1,0 +1,35 @@
+# .github/workflows/mh-wilds-scheduler.yml
+name: MH Wilds Scheduler
+
+on:
+  push:
+    branches: [ feature/base-of-app, main ]
+  workflow_dispatch:
+  schedule:
+    # Function①: Event Check
+    # Wed/Thu: Every 4 hours (JST 00,04,08,12,16,20)
+    - cron: '0 15,19,23,3,7,11 * * 2,3'
+    # Other days: Once daily (JST 10:00)
+    - cron: '0 1 * * 0,1,4,5,6'
+    
+    # Function②: Compliance Check
+    # 3 times a week: Mon/Wed/Fri (JST 14:00)
+    - cron: '0 5 * * 1,3,5'
+
+jobs:
+  event-check:
+    runs-on: ubuntu-latest
+    environment: production
+    if: github.event.schedule == '0 15,19,23,3,7,11 * * 2,3' || github.event.schedule == '0 1 * * 0,1,4,5,6'
+    steps:
+      - run: |
+          curl -X GET "${{ secrets.API_BASE_URL }}/api/function/event/check"
+
+  compliance-check:
+    runs-on: ubuntu-latest
+    environment: production
+    if: github.event.schedule == '0 5 * * 1,3,5'
+    steps:
+      - run: |
+          curl -X GET "${{ secrets.API_BASE_URL }}/api/member/compliance/check"
+

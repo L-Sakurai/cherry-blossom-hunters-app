@@ -1,0 +1,112 @@
+openapi: 3.0.3
+info:
+  title: Cherry Blossom Hunters API
+  version: "1.0.0"
+  description: API documentation for Cherry Blossom Hunters backend.
+
+servers:
+  - url: http://localhost:8080/api
+    description: Local development server
+
+paths:
+  /member/compliance/check:
+    post:
+      summary: Check member compliance
+      operationId: checkMemberCompliance
+      tags:
+        - Member
+      requestBody:
+        description: Member compliance check request
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                memberId:
+                  type: string
+      responses:
+        '200':
+          description: Compliance check result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  compliant:
+                    type: boolean
+                  reason:
+                    type: string
+        '400':
+          description: Invalid input
+
+  /healthcheck:
+    get:
+      summary: Healthcheck endpoint
+      operationId: healthcheck
+      tags:
+        - System
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /event/check:
+    get:
+      summary: Retrieve current events
+      operationId: getEvents
+      tags:
+        - Event
+      responses:
+        '200':
+          description: List of current events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+                  events:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        date:
+                          type: string
+                          format: date
+
+        '500':
+          description: Internal server error
+        '408':
+          description: Request timeout
+
+  /shutdown:
+    post:
+      summary: Graceful shutdown trigger
+      operationId: shutdown
+      tags:
+        - System
+      responses:
+        '200':
+          description: Shutdown initiated
+        '403':
+          description: Not allowed
